@@ -6,14 +6,9 @@
 import logging.handlers
 import time
 import os
-import digitalio
-import board
 from tb_gateway_mqtt import TBDeviceMqttClient
-import busio
-import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import AnalogIn
    
-ACCESS_TOKEN = "TEST_TOKEN"
+ACCESS_TOKEN = "s0H1cehcYgQtAs7pOYK1"
 THINGSBOARD_SERVER = 'thingsboard.cloud'
 
 logging.basicConfig(level=logging.DEBUG)
@@ -25,21 +20,6 @@ period = 1.0
 
 # alive Variable definieren
 alive = False
-
-# LED definieren
-led = digitalio.DigitalInOut(board.D17)
-led.direction = digitalio.Direction.OUTPUT
-
-# Anfangswert der LED setzen
-led.value = True
-
-# I2C Bus definieren, ADC object erzeugen, Input auf Kanal 0
-i2c = busio.I2C(board.SCL, board.SDA)
-ads = ADS.ADS1115(i2c)
-chan = AnalogIn(ads, ADS.P0)
-
-# Anfangswert des Analog Input einlesen
-analog_voltage = chan.voltage
 
 # callback function that will call when we will change value of our Shared Attribute
 def attribute_callback(result, _):
@@ -86,7 +66,6 @@ def get_data():
         'swap_memory_usage': swap_memory_usage,
         'boot_time': boot_time,
         'avg_load': avg_load,
-        'analog_voltage': analog_voltage,
         'alive': alive
     }
     print(attributes, telemetry)
@@ -119,8 +98,6 @@ def main():
             client.send_attributes(attributes)
             client.send_telemetry(telemetry)
             time.sleep(period)
-            led.value = not led.value
-            analog_voltage = chan.voltage
             alive = not alive
     except KeyboardInterrupt:
         print("Program terminated by user")
